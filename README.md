@@ -1,40 +1,81 @@
-1. Introduction
-Title: "Virtual Network Simulation Using EVE-NG"
-Description: Provide a brief overview of the project, including its purpose (e.g., "This project demonstrates network segmentation using VLANs, showcasing skills in network design and configuration.")
-Tools: Mention all tools used (EVE-NG, Cisco devices, configurations, etc.)
-2. Project Objectives
-Describe the goals, such as:
-Implementing VLANs to segment network traffic.
-Configuring inter-VLAN routing using the router.
-Ensuring communication between VLANs and servers.
-3. Network Topology
-Include a diagram of your network topology showing:
-Switch connections.
-Router placement.
-Server locations.
-VLAN assignments.
-Mention software used to create the diagram (e.g., Visio, draw.io).
-4. Network Details
-VLAN Details:
-VLAN IDs and their purposes (e.g., VLAN 10 - Admin, VLAN 20 - Development).
-Device IP Details:
-Router and server IP addresses.
-Switch management IP addresses.
-Hardware/Software Specifications:
-Types of Cisco switches and router.
-Operating System of servers.
-5. Configurations
-Provide step-by-step configuration details:
-VLAN configuration on switches.
-Inter-VLAN routing setup on the router.
-Server IP assignments and testing connectivity.
-Include configuration code blocks.
-6. Testing and Validation
-Describe how you tested network functionality (e.g., ping tests, connectivity between VLANs and servers).
-Attach screenshots of successful tests.
-7. Challenges and Solutions
-Mention any challenges faced (e.g., misconfigurations, connection issues) and how you resolved them.
-8. Conclusion
-Highlight key takeaways, such as how this project demonstrates your networking knowledge.
-9. Appendix
-Additional materials (e.g., full configuration files, troubleshooting logs).
+Network Topology Documentation
+
+Overview
+
+This repository contains the network topology diagram for building network project . The network consists of multiple Cisco switches, two router, and multiple VLANs to simulate a corporate environment.
+
+Network Components
+
+Core Switch:
+
+Device: CBS350-8G
+
+IP Address: 192.*.*.*
+
+Function: Acts as the central switch connecting multiple switches and network segments.
+
+Access Switches:
+
+The network includes multiple access switches, primarily Cisco CBS350-24T-4G models, which segment different floors and departments:
+
+FLR1-1R: 192.*.*.*
+
+FLR1-2C: 192.*.*.*
+
+FLR2-R: 192.*.*.*
+
+FLR2-LL: 192.*.*.*
+
+FLR3-1R: 192.*.*.*
+
+FLR3-3D: 192.*.*.*
+
+FLR3-4L: 192.*.*.*
+
+FLR3-2U: 192.*.*.*
+
+ITSWITCH: 192.*.*.* (Dedicated switch for IT department)
+
+HR: 192.*.*.* (HR Department switch)
+
+QU: 192.*.*.* (Quality control switch)
+
+Router:
+
+Device: Cisco Router
+
+IP Address: *.*.*.* (Configured as gateway for external connections)
+
+Function: Handles routing between VLANs and internet connectivity.
+
+Phones:
+
+Several VoIP phones (GXP1615, GXP2135) are connected to the network:
+
+GXP1615: 192.*.*.*, 192.*.*.*, 192.*.*.*, 192.*.*.*, 192.*.*.*, 192.*.*.*
+
+GXP2135: 192.*.*.*
+
+Additional Components:
+
+FL2-CLOSER: CBS220-48T-4G (192.*.*.*)
+
+Cloud Connection: ip4solution (*.*.*.*)
+
+Additional Host: CC2D-E0-39-D2-96 (192.*.*.*)
+
+VLANs
+
+The network is segmented using VLANs for better traffic isolation and security.
+
+VLAN 10: IT Department
+
+VLAN 20: HR Department
+
+VLAN 30: Floor 1 Devices
+
+VLAN 40: Floor 2 Devices
+
+VLAN 50: Floor 3 Devices
+
+VLAN 99: Management VLAN
