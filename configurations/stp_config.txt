@@ -1,17 +1,51 @@
-Switch#conf t
-Switch(config)#spanning-tree mode mst
-Switch(config)#spanning-tree vlan 10 priority 0
-Switch(config)#spanning-tree hello-time 5
-Switch(config)#spanning-tree forward-time 10
-Switch(config)#spanning-tree max-age 8
-Switch(config)#
-Switch(config)#
-Switch(config)#
+#########################
+Core Switch Configuration
+#########################
+enable
+configure terminal
+hostname CoreSwitch
+interface vlan 99
+ ip address 192.168.4.61 255.255.255.0
+exit
+vlan 10
+ name IT
+vlan 20
+ name HR
+vlan 30
+ name Floor1
+vlan 40
+ name Floor2
+vlan 50
+ name Floor3
+exit
+###########################
+Access Switch Configuration 
+###########################
+enable
+configure terminal
+hostname AccessSwitch-FLR1-1R
+interface vlan 30
+ ip address 192.168.4.47 255.255.255.0
+exit
+interface gigabitEthernet 1/0/1
+ switchport mode access
+ switchport access vlan 30
+exit
+####################
+Router Configuration
+####################
 
-
-
-
-
-
-
-
+enable
+configure terminal
+hostname Router
+interface gigabitEthernet 0/0
+ ip address 1.1.1.1 255.255.255.0
+ no shutdown
+exit
+interface gigabitEthernet 0/1
+ ip address 192.168.4.1 255.255.255.0
+ no shutdown
+exit
+router ospf 1
+ network 192.168.4.0 0.0.0.255 area 0
+exit
