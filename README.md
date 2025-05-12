@@ -1,81 +1,214 @@
-Network Topology Documentation
+🛠️ Assumptions:
+* Switches are Cisco CBS350 with CLI access.
+** Switches support standard VLAN, STP, port-security, SSH.
+*** Default VLAN is 1.
+**** VLAN 10 → Floors
+***** VLAN 20 → QU, HR, IT
+****** IP range used: 192.168.1.0/24
+******* SSH is enabled globally
 
-Overview
+----------------------------------------------------
+####################################################
+✅ 1. Assign IP, enable SSH, and rename switches
+####################################################
+----------------------------------------------------
+# Hostname and IP Setup (example for Floor 1 switch)
+hostname Floor-1
+interface vlan 1
+  ip address 192.168.1.11 255.255.255.0
+  no shutdown
+exit
 
-This repository contains the network topology diagram for building network project . The network consists of multiple Cisco switches, two router, and multiple VLANs to simulate a corporate environment.
+# Enable SSH and set credentials
+ip ssh server
+username admin privilege 15 password 0 strong_password_here
+crypto key generate rsa
+----------------------------------------------------
+####################################################
+✅ 2. VLAN Configuration
+####################################################
+----------------------------------------------------
+vlan 10
+  name Floors
+exit
+vlan 20
+  name QU_HR_IT
+exit
 
-Network Components
+# Assign VLANs to ports (example: Floor switch)
+interface range gi1/1 - 1/20
+  switchport mode access
+  switchport access vlan 10
+  spanning-tree portfast
+exit
 
-Core Switch:
+# For QU, HR, IT switch
+interface range gi1/1 - 1/20
+  switchport mode access
+  switchport access vlan 20
+  spanning-tree portfast
+exit
 
-Device: CBS350-8G
+----------------------------------------------------
+####################################################
+✅ 3. Shutdown Ports 20-24
+####################################################
+----------------------------------------------------
+interface range gi1/20 - 1/24
+  shutdown
+exit
 
-IP Address: 192.*.*.*
+----------------------------------------------------
+####################################################
+✅ 4. Spanning Tree Protocol
+####################################################
+----------------------------------------------------
+spanning-tree mode rapid-pvst
+spanning-tree portfast default
 
-Function: Acts as the central switch connecting multiple switches and network segments.
+----------------------------------------------------
+####################################################
+✅ 5. Enable Port Security with Sticky MAC
+####################################################
+----------------------------------------------------
+interface range gi1/1 - 1/20
+  switchport port-security
+  switchport port-security maximum 2
+  switchport port-security mac-address sticky
+  switchport port-security violation restrict
+exit
 
-Access Switches:
+----------------------------------------------------
+####################################################
+✅ Trunk Port on Gi1/1 (Port 1)
+####################################################
+----------------------------------------------------
+interface gi1/1
+  switchport mode trunk
+  switchport trunk allowed vlan 10,20
+ 
+exit
 
-The network includes multiple access switches, primarily Cisco CBS350-24T-4G models, which segment different floors and departments:
 
-FLR1-1R: 192.*.*.*
+----------------------------------------------------
+####################################################
+✅ The complete configuration 
+####################################################
+----------------------------------------------------
 
-FLR1-2C: 192.*.*.*
+hostname Floor-1
+interface vlan 1
+  ip address 192.168.1.11 255.255.255.0
+  no shutdown
+exit
+ip ssh server
+username admin privilege 15 password 0 strong_password_here
+crypto key generate rsa
+vlan 10
+  name Floors
+exit
+vlan 20
+  name QU_HR_IT
+exit
 
-FLR2-R: 192.*.*.*
 
-FLR2-LL: 192.*.*.*
+interface gi1/1
+  switchport mode trunk
+  switchport trunk allowed vlan 10,20
 
-FLR3-1R: 192.*.*.*
+exit
 
-FLR3-3D: 192.*.*.*
 
-FLR3-4L: 192.*.*.*
+interface range gi1/2 - 1/19
+  switchport mode access
+  switchport access vlan 10
+  spanning-tree portfast
+  switchport port-security
+  switchport port-security maximum 2
+  switchport port-security mac-address sticky
+  switchport port-security violation restrict
+exit
 
-FLR3-2U: 192.*.*.*
+interface range gi1/20 - 1/24
+  shutdown
+exit
 
-ITSWITCH: 192.*.*.* (Dedicated switch for IT department)
+spanning-tree mode rapid-pvst
 
-HR: 192.*.*.* (HR Department switch)
 
-QU: 192.*.*.* (Quality control switch)
 
-Router:
 
-Device: Cisco Router
 
-IP Address: *.*.*.* (Configured as gateway for external connections)
 
-Function: Handles routing between VLANs and internet connectivity.
 
-Phones:
 
-Several VoIP phones (GXP1615, GXP2135) are connected to the network:
 
-GXP1615: 192.*.*.*, 192.*.*.*, 192.*.*.*, 192.*.*.*, 192.*.*.*, 192.*.*.*
 
-GXP2135: 192.*.*.*
 
-Additional Components:
 
-FL2-CLOSER: CBS220-48T-4G (192.*.*.*)
 
-Cloud Connection: ip4solution (*.*.*.*)
 
-Additional Host: CC2D-E0-39-D2-96 (192.*.*.*)
 
-VLANs
 
-The network is segmented using VLANs for better traffic isolation and security.
 
-VLAN 10: IT Department
 
-VLAN 20: HR Department
 
-VLAN 30: Floor 1 Devices
 
-VLAN 40: Floor 2 Devices
 
-VLAN 50: Floor 3 Devices
 
-VLAN 99: Management VLAN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
