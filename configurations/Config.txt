@@ -1,51 +1,138 @@
-#########################
-Core Switch Configuration
-#########################
-enable
-configure terminal
-hostname CoreSwitch
-interface vlan 99
- ip address 192.168.4.61 255.255.255.0
-exit
-vlan 10
- name IT
-vlan 20
- name HR
-vlan 30
- name Floor1
-vlan 40
- name Floor2
-vlan 50
- name Floor3
-exit
-###########################
-Access Switch Configuration 
-###########################
-enable
-configure terminal
-hostname AccessSwitch-FLR1-1R
-interface vlan 30
- ip address 192.168.4.47 255.255.255.0
-exit
-interface gigabitEthernet 1/0/1
- switchport mode access
- switchport access vlan 30
-exit
-####################
-Router Configuration
-####################
+🛠️ Assumptions:
+* Switches are Cisco CBS350 with CLI access.
+** Switches support standard VLAN, STP, port-security, SSH.
+*** Default VLAN is 1.
+**** VLAN 10 → Floors
+***** VLAN 20 → QU, HR, IT
+****** IP range used: 192.168.1.0/24
+******* SSH is enabled globally
 
-enable
-configure terminal
-hostname Router
-interface gigabitEthernet 0/0
- ip address 1.1.1.1 255.255.255.0
- no shutdown
+----------------------------------------------------
+####################################################
+✅ 1. Assign IP, enable SSH, and rename switches
+####################################################
+----------------------------------------------------
+# Hostname and IP Setup (example for Floor 1 switch)
+hostname Floor-1
+interface vlan 1
+  ip address 192.168.1.11 255.255.255.0
+  no shutdown
 exit
-interface gigabitEthernet 0/1
- ip address 192.168.4.1 255.255.255.0
- no shutdown
+
+# Enable SSH and set credentials
+ip ssh server
+username admin privilege 15 password 0 strong_password_here
+crypto key generate rsa
+----------------------------------------------------
+####################################################
+✅ 2. VLAN Configuration
+####################################################
+----------------------------------------------------
+vlan 10
+  name Floors
 exit
-router ospf 1
- network 192.168.4.0 0.0.0.255 area 0
+vlan 20
+  name QU_HR_IT
+exit
+
+# Assign VLANs to ports (example: Floor switch)
+interface range gi1/1 - 1/20
+  switchport mode access
+  switchport access vlan 10
+  spanning-tree portfast
+exit
+
+# For QU, HR, IT switch
+interface range gi1/1 - 1/20
+  switchport mode access
+  switchport access vlan 20
+  spanning-tree portfast
+exit
+
+----------------------------------------------------
+####################################################
+✅ 3. Shutdown Ports 20-24
+####################################################
+----------------------------------------------------
+interface range gi1/20 - 1/24
+  shutdown
+exit
+
+----------------------------------------------------
+####################################################
+✅ 4. Spanning Tree Protocol
+####################################################
+----------------------------------------------------
+spanning-tree mode rapid-pvst
+spanning-tree portfast default
+
+----------------------------------------------------
+####################################################
+✅ 5. Enable Port Security with Sticky MAC
+####################################################
+----------------------------------------------------
+interface range gi1/1 - 1/20
+  switchport port-security
+  switchport port-security maximum 2
+  switchport port-security mac-address sticky
+  switchport port-security violation restrict
+exit
+
+----------------------------------------------------
+####################################################
+✅ Trunk Port on Gi1/1 (Port 1)
+####################################################
+----------------------------------------------------
+interface gi1/1
+  switchport mode trunk
+  switchport trunk allowed vlan 10,20
+ 
+exit
+
+
+----------------------------------------------------
+####################################################
+✅ The complete configuration 
+####################################################
+----------------------------------------------------
+
+hostname Floor-1
+interface vlan 1
+  ip address 192.168.1.11 255.255.255.0
+  no shutdown
+exit
+ip ssh server
+username admin privilege 15 password 0 strong_password_here
+crypto key generate rsa
+vlan 10
+  name Floors
+exit
+vlan 20
+  name QU_HR_IT
+exit
+
+
+interface gi1/1
+  switchport mode trunk
+  switchport trunk allowed vlan 10,20
+
+exit
+
+
+interface range gi1/2 - 1/19
+  switchport mode access
+  switchport access vlan 10
+  spanning-tree portfast
+  switchport port-security
+  switchport port-security maximum 2
+  switchport port-security mac-address sticky
+  switchport port-security violation restrict
+exit
+
+interface range gi1/20 - 1/24
+  shutdown
+exit
+
+spanning-tree mode rapid-pvst
+copy running-config startup-config
 exit
