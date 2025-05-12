@@ -88,7 +88,14 @@ interface gi1/1
   switchport trunk allowed vlan 10,20
  
 exit
+----------------------------------------------------
+####################################################
+✅ Enable SNMP for network monitoring tools
+####################################################
+----------------------------------------------------
 
+snmp-server community public RO
+snmp-server enable traps
 
 ----------------------------------------------------
 ####################################################
@@ -128,7 +135,8 @@ interface range gi1/2 - 1/19
   switchport port-security mac-address sticky
   switchport port-security violation restrict
 exit
-
+snmp-server community public RO
+snmp-server enable traps
 interface range gi1/20 - 1/24
   shutdown
 exit
