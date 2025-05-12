@@ -1,214 +1,40 @@
-🛠️ Assumptions:
-* Switches are Cisco CBS350 with CLI access.
-** Switches support standard VLAN, STP, port-security, SSH.
-*** Default VLAN is 1.
-**** VLAN 10 → Floors
-***** VLAN 20 → QU, HR, IT
-****** IP range used: 192.168.1.0/24
-******* SSH is enabled globally
+📡 Call Center Network Switch Configuration – Cisco CBS350
 
-----------------------------------------------------
-####################################################
-✅ 1. Assign IP, enable SSH, and rename switches
-####################################################
-----------------------------------------------------
-# Hostname and IP Setup (example for Floor 1 switch)
-hostname Floor-1
-interface vlan 1
-  ip address 192.168.1.11 255.255.255.0
-  no shutdown
-exit
+**This project involves configuring a secure and efficient Layer 2 switching network for a call center environment using 13 Cisco CBS350 switches. It includes VLAN segmentation, trunking, SSH access, Spanning Tree optimization, port security, and more — all tailored for a high-availability voice/data infrastructure.**
 
-# Enable SSH and set credentials
-ip ssh server
-username admin privilege 15 password 0 strong_password_here
-crypto key generate rsa
-----------------------------------------------------
-####################################################
-✅ 2. VLAN Configuration
-####################################################
-----------------------------------------------------
-vlan 10
-  name Floors
-exit
-vlan 20
-  name QU_HR_IT
-exit
+🏗️ Network Design Summary
 
-# Assign VLANs to ports (example: Floor switch)
-interface range gi1/1 - 1/20
-  switchport mode access
-  switchport access vlan 10
-  spanning-tree portfast
-exit
+Total Switches: 13 Cisco CBS350 switches
+Topology: Star design with a Core Switch and 12 Access Switches
+Naming Convention: Core-SW, Floor-1, Floor-2, Floor-3, QU, HR, IT, etc.
+Management VLAN: VLAN 20
+Voice VLAN : VLAN 10 agent on call users
 
-# For QU, HR, IT switch
-interface range gi1/1 - 1/20
-  switchport mode access
-  switchport access vlan 20
-  spanning-tree portfast
-exit
+🔐 Security Features Implemented
 
-----------------------------------------------------
-####################################################
-✅ 3. Shutdown Ports 20-24
-####################################################
-----------------------------------------------------
-interface range gi1/20 - 1/24
-  shutdown
-exit
+| Feature                      | Description                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| **SSH Access**               | Enabled and secured with user authentication                                        |
+| **Port Security**            | Sticky MAC address binding, limits per port, and violation handling                 |
+| **BPDU Guard**               | Enabled on access ports to prevent rogue switch loops                               |
+| **DHCP Snooping**            | Blocks rogue DHCP servers, allows trusted uplinks only                              |
+| **Shutdown Unused Ports**    | All unused ports (Gi1/20–Gi1/24) are administratively shut down                     |
+| **Restricted SSH Access**    | SSH management access limited to specific IP addresses using ACLs                   |
+| **Spanning Tree RSTP**       | Rapid Spanning Tree Protocol with Core-SW as root bridge                            |
+| **Trunk Ports**              | Port Gi1/1 on all switches is configured as trunk for inter-switch VLAN propagation |
+| ** SNMP **                   | Supports centralized logging and monitoring integration                             |
+| **QoS Ready **               | Prepared for voice QoS if IP phones are deployed                                    |
 
-----------------------------------------------------
-####################################################
-✅ 4. Spanning Tree Protocol
-####################################################
-----------------------------------------------------
-spanning-tree mode rapid-pvst
-spanning-tree portfast default
 
-----------------------------------------------------
-####################################################
-✅ 5. Enable Port Security with Sticky MAC
-####################################################
-----------------------------------------------------
-interface range gi1/1 - 1/20
-  switchport port-security
-  switchport port-security maximum 2
-  switchport port-security mac-address sticky
-  switchport port-security violation restrict
-exit
 
-----------------------------------------------------
-####################################################
-✅ Trunk Port on Gi1/1 (Port 1)
-####################################################
-----------------------------------------------------
-interface gi1/1
-  switchport mode trunk
-  switchport trunk allowed vlan 10,20
- 
-exit
 
+📈 Benefits of This Design
+✅ Segregated traffic for different departments and users
 
-----------------------------------------------------
-####################################################
-✅ The complete configuration 
-####################################################
-----------------------------------------------------
+✅ Faster failover with Rapid STP and trunk optimization
 
-hostname Floor-1
-interface vlan 1
-  ip address 192.168.1.11 255.255.255.0
-  no shutdown
-exit
-ip ssh server
-username admin privilege 15 password 0 strong_password_here
-crypto key generate rsa
-vlan 10
-  name Floors
-exit
-vlan 20
-  name QU_HR_IT
-exit
+✅ Strong port-level security against unauthorized device access
 
+✅ Scalable and maintainable structure for future expansion
 
-interface gi1/1
-  switchport mode trunk
-  switchport trunk allowed vlan 10,20
-
-exit
-
-
-interface range gi1/2 - 1/19
-  switchport mode access
-  switchport access vlan 10
-  spanning-tree portfast
-  switchport port-security
-  switchport port-security maximum 2
-  switchport port-security mac-address sticky
-  switchport port-security violation restrict
-exit
-
-interface range gi1/20 - 1/24
-  shutdown
-exit
-
-spanning-tree mode rapid-pvst
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+✅ Production-ready for VoIP, surveillance, or large-volume data handling
