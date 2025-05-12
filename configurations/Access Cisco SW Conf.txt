@@ -35,7 +35,7 @@ spanning-tree bpduguard enable
 
 -------------------------
 ####################################################
-✅ 2. VLAN Configuration for core SW
+✅ 2. VLAN Configuration 
 ####################################################
 ----------------------------------------------------
 vlan 10
@@ -53,7 +53,7 @@ interface range gi11 - 15
 exit
 
 # For QU, HR, IT switch
-interface range gi6 - 10
+interface range gi * - *
   switchport mode access
   switchport access vlan 20
   spanning-tree portfast
@@ -97,6 +97,15 @@ interface gi1/1
   switchport mode trunk
   switchport trunk allowed vlan 10,20
  
+exit
+----------------------------------------------------
+####################################################
+✅ QoS
+####################################################
+----------------------------------------------------
+interface gi2-19
+switchport voice vlan 10               ! Assigns voice VLAN
+mls qos trust dscp                     ! Trust DSCP marking from IP phone
 exit
 ----------------------------------------------------
 ####################################################
@@ -171,6 +180,10 @@ interface range gi2-19
 ip dhcp snooping limit rate 10
 interface range gi1/20 - 1/24
 shutdown
+exit
+interface gi2-19
+switchport voice vlan 10               ! Assigns voice VLAN
+mls qos trust dscp                     ! Trust DSCP marking from IP phone
 exit
 spanning-tree mode rapid-pvst
 copy running-config startup-config
