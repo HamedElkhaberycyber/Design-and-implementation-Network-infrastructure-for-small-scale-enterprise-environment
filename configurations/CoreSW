@@ -1,0 +1,52 @@
+! Set hostname
+hostname Core-SW
+
+! Assign management IP address
+interface vlan 1
+ ip address 192.168.*.* 255.255.255.0
+ no shutdown
+
+! Enable SSH
+ip domain-name *****.local
+username admin privilege 15 password 0 StrongPass123
+crypto key generate rsa
+ip ssh version 2
+line vty 0 4
+ login local
+ transport input ssh
+
+! Create VLANs
+vlan 10
+ name Floor
+vlan 20
+ name Departments
+
+! Ports 1–5 (Server connections) – Trunk
+interface range gi1/1 - 1/5
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20
+ spanning-tree guard root
+
+! Ports 6–15 (Uplink to Floor/Dept switches) – Trunk
+interface range gi1/6 - 1/15
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20
+ spanning-tree guard root
+
+! Ports 20–21 (Firewall connections) – Trunk
+interface range gi1/20 - 1/21
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20
+ spanning-tree guard root
+
+! Disable unused ports (22–24)
+interface range gi1/22 - 1/24
+ shutdown
+
+! Enable Rapid Spanning Tree and set Core as Root
+spanning-tree mode rapid-pvst
+spanning-tree vlan 10,20 priority 4096
+
+! Save configuration
+end
+write memory
